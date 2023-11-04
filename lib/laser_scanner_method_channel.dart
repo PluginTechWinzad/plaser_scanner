@@ -23,6 +23,12 @@ class MethodChannelLaserScanner extends LaserScannerPlatform {
   }
 
   @override
+  Future<bool> closeScanner() async {
+    final status = await methodChannel.invokeMethod<bool>('closeScanner');
+    return status ?? false;
+  }
+
+  @override
   Future<void> onListenerResultScanner({required onListenerResultScanner}) async {
     await methodChannel.invokeMethod<String>('onListenerResultScanner');
     _eventChanelScanner(onListenerResultScanner: onListenerResultScanner);

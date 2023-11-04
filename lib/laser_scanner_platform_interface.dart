@@ -31,6 +31,10 @@ abstract class LaserScannerPlatform extends PlatformInterface {
   Future<void> openScanner() {
     throw UnimplementedError('openScanner() has not been implemented.');
   }
+  
+  Future<bool> closeScanner() {
+    throw UnimplementedError('openScanner() has not been implemented.');
+  }
 
   Future<void> onListenerResultScanner({required Function(ResultScanIntentModel? value ) onListenerResultScanner}) {
     throw UnimplementedError('onListenerResultScanner() has not been implemented.');

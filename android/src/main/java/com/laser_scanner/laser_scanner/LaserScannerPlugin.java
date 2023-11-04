@@ -58,17 +58,31 @@ public class LaserScannerPlugin implements FlutterPlugin, MethodCallHandler {
       scanner.initScan();
       scanner.registerReceiver(true);
       result.success(null);
+    }else if(call.method.equals("closeScanner")){
+      boolean status =  scanner.closeScanner();
+      result.success(status);
     }else if(call.method.equals("onListenerResultScanner")){
-//      scanner.initScan();
-//      scanner.registerReceiver(true);
       eventChannelRegister();
-//      ResultEventChannel resultEventChannel=  new ResultEventChannel(binaryMessenger);
-//      resultEventChannel.getEventSink
       result.success(null);
     } else if(call.method.equals("isTurnOn")){
       boolean status = scanner.getStatusOfScan();
       result.success(status);
+    }else if(call.method.equals("getScanOutputMode")){
+      int status = scanner.getScanOutputMode();
+      result.success(status);
+    }else if(call.method.equals("setScanOutputMode")){
+      int mode = ( int)call.arguments;
+      scanner.setScanOutputMode(mode);
+      result.success(null);
+    } else if(call.method.equals("getlockTriggerState")){
+      boolean status = scanner.getlockTriggerState();
+      result.success(status);
+    }else if(call.method.equals("setlockTriggerState")){
+      boolean state = (boolean)call.arguments;
+      scanner.updateLockTriggerState(state);
+      result.success(null);
     } else {
+
       result.notImplemented();
     }
   }

@@ -161,7 +161,6 @@ public class ScannerManagerHelper {
                 scanResultMap.put("barcode",scanResult);
                 scanResultMap.put("bytesToHexString",bytesToHexString(barcode));
                 scanResultMap.put("barcodeStr",barcodeStr);
-//                scanResult = " length：" + barcodeLen + "\nbarcode：" + scanResult + "\nbytesToHexString：" + bytesToHexString(barcode) + "\nbarcodeStr:" + barcodeStr;
                 Message msg = mHandler.obtainMessage(MSG_SHOW_SCAN_RESULT);
                 msg.obj = scanResultMap;
                 mHandler.sendMessage(msg);
@@ -179,8 +178,6 @@ public class ScannerManagerHelper {
                     HashMap<String,Object> scanResult = (HashMap<String,Object>) msg.obj;
                     if(LaserScannerPlugin.attachEvent != null){
                         LaserScannerPlugin.attachEvent.success(scanResult);
-                    }else{
-                        Log.d("TAG","NULL RỒI");
                     }
                     break;
                 case MSG_SHOW_SCAN_IMAGE:
@@ -238,7 +235,7 @@ public class ScannerManagerHelper {
             context.registerReceiver(mReceiver, filter);
         } else if (mScanManager != null) {
             mScanManager.stopDecode();
-//            unregisterReceiver(mReceiver);
+            unregisterReceiver(mReceiver);
         }
     }
 
@@ -439,15 +436,49 @@ public class ScannerManagerHelper {
 
     // Init scan [IMPORTTANT].
     public void initScan() {
+        openScanner();
+        /*
         mScanManager = new ScanManager();
         mScanManager.openScanner();
-//        initBarcodeParameters();
+        initBarcodeParameters();*/
     }
 
-    // Init scan [IMPORTTANT].
     public boolean getStatusOfScan(){
         boolean powerOn = mScanManager.getScannerState();
         return powerOn;
+    }
+
+    /**
+     * ScanManager.getOutputMode
+     *
+     * @return
+     */
+    public int getScanOutputMode() {
+        int mode = mScanManager.getOutputMode();
+        return mode;
+    }
+
+    /**
+     * ScanManager.switchOutputMode
+     *
+     * @param mode
+     */
+    public void setScanOutputMode(int mode) {
+        int currentMode = getScanOutputMode();
+        if (mode != currentMode && (mode == DECODE_OUTPUT_MODE_FOCUS ||
+                mode == DECODE_OUTPUT_MODE_INTENT)) {
+            mScanManager.switchOutputMode(mode);
+            /*
+            if (mode == DECODE_OUTPUT_MODE_FOCUS) {
+                DECODE_OUTPUT_MODE_CURRENT = DECODE_OUTPUT_MODE_FOCUS;
+                updateIntShared(DECODE_OUTPUT_MODE, DECODE_OUTPUT_MODE_FOCUS);
+            } else if (mode == DECODE_OUTPUT_MODE_INTENT) {
+                DECODE_OUTPUT_MODE_CURRENT = DECODE_OUTPUT_MODE_INTENT;
+                updateIntShared(DECODE_OUTPUT_MODE, DECODE_OUTPUT_MODE_INTENT);
+            }*/
+        } else {
+            LogI("setScanOutputMode , ignore update Output mode:" + mode);
+        }
     }
 
     /**
@@ -459,6 +490,8 @@ public class ScannerManagerHelper {
         Triggering mode = mScanManager.getTriggerMode();
         return mode;
     }
+
+
 
     /**
      * ScanManager.setTriggerMode
@@ -485,39 +518,9 @@ public class ScannerManagerHelper {
         }
     }
 
-    /**
-     * ScanManager.getOutputMode
-     *
-     * @return
-     */
-    // [IMPORTTANT].
-    private int getScanOutputMode() {
-        int mode = mScanManager.getOutputMode();
-        return mode;
-    }
 
-    /**
-     * ScanManager.switchOutputMode
-     *
-     * @param mode
-     */
-    //[IMPORTTANT].
-    private void setScanOutputMode(int mode) {
-        int currentMode = getScanOutputMode();
-        if (mode != currentMode && (mode == DECODE_OUTPUT_MODE_FOCUS ||
-                mode == DECODE_OUTPUT_MODE_INTENT)) {
-            mScanManager.switchOutputMode(mode);
-            if (mode == DECODE_OUTPUT_MODE_FOCUS) {
-                DECODE_OUTPUT_MODE_CURRENT = DECODE_OUTPUT_MODE_FOCUS;
-                updateIntShared(DECODE_OUTPUT_MODE, DECODE_OUTPUT_MODE_FOCUS);
-            } else if (mode == DECODE_OUTPUT_MODE_INTENT) {
-                DECODE_OUTPUT_MODE_CURRENT = DECODE_OUTPUT_MODE_INTENT;
-                updateIntShared(DECODE_OUTPUT_MODE, DECODE_OUTPUT_MODE_INTENT);
-            }
-        } else {
-            LogI("setScanOutputMode , ignore update Output mode:" + mode);
-        }
-    }
+
+
 
 
     /**
@@ -525,7 +528,7 @@ public class ScannerManagerHelper {
      *
      * @return
      */
-    private boolean getlockTriggerState() {
+    public boolean getlockTriggerState() {
         boolean state = mScanManager.getTriggerLockState();
         return state;
     }
@@ -535,7 +538,7 @@ public class ScannerManagerHelper {
      *
      * @param state value ture or false
      */
-    private void updateLockTriggerState(boolean state) {
+    public void updateLockTriggerState(boolean state) {
         boolean currentState = getlockTriggerState();
         if (state != currentState) {
             if (state) {
@@ -584,7 +587,7 @@ public class ScannerManagerHelper {
      *
      * @return
      */
-    private boolean closeScanner() {
+    public boolean closeScanner() {
         boolean state = false;
         if (mScanManager != null) {
             mScanManager.stopDecode();
@@ -604,21 +607,12 @@ public class ScannerManagerHelper {
     private boolean openScanner() {
         mScanManager = new ScanManager();
         boolean powerOn = mScanManager.getScannerState();
-//        if (!powerOn) {
-//            powerOn = mScanManager.openScanner();
-//            if (!powerOn) {
-//                AlertDialog.Builder builder = new AlertDialog.Builder(this);
-//                builder.setMessage("Scanner cannot be turned on!");
-//                builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-//                    @Override
-//                    public void onClick(DialogInterface dialog, int which) {
-//                        dialog.dismiss();
-//                    }
-//                });
-//                AlertDialog mAlertDialog = builder.create();
-//                mAlertDialog.show();
-//            }
-//        }
+        if (!powerOn) {
+            powerOn = mScanManager.openScanner();
+            if (!powerOn) {
+
+            }
+        }
         mScanManager.enableAllSymbologies(true);   // or execute enableSymbologyDemo() || enableSymbologyDemo2() is the same.
         setTrigger(getTriggerMode());
         setScanOutputMode(getScanOutputMode());
