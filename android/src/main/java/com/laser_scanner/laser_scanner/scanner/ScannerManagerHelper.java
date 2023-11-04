@@ -1,4 +1,4 @@
-package com.laser_scanner.laser_scanner_example.scanner;
+package com.laser_scanner.laser_scanner.scanner;
 
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
@@ -31,6 +31,7 @@ import android.preference.PreferenceManager;
 import android.preference.PreferenceScreen;
 import android.preference.SwitchPreference;
 import android.provider.SyncStateContract;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -43,9 +44,8 @@ import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.Toast;
 
-import org.jetbrains.annotations.Nullable;
+import com.laser_scanner.laser_scanner.LaserScannerPlugin;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -69,6 +69,10 @@ import java.util.Map;
  * 11.Can set parameters before closing the scan service.
  */
 public class ScannerManagerHelper {
+    Context context;
+    public ScannerManagerHelper(Context context){
+        this.context = context;
+    };
     private static final String TAG = "ScanManagerDemo";
     private static final boolean DEBUG = true;
 
@@ -94,12 +98,12 @@ public class ScannerManagerHelper {
     private static final String DECODE_CAPTURE_IMAGE_KEY = "bitmapBytes";
     private static final String DECODE_CAPTURE_IMAGE_SHOW = "scan_capture_image";
 
-    private EditText showScanResult = null;
-    private Button mScan = null;
-    private LinearLayout mHome = null;
-    private FrameLayout mFlagment = null;
-    private MenuItem settings = null;
-    private ImageView mScanImage = null;
+//    private EditText showScanResult = null;
+//    private Button mScan = null;
+//    private LinearLayout mHome = null;
+//    private FrameLayout mFlagment = null;
+//    private MenuItem settings = null;
+//    private ImageView mScanImage = null;
 
     private ScanManager mScanManager = null;
     private static boolean mScanEnable = true;
@@ -108,11 +112,10 @@ public class ScannerManagerHelper {
 
     private static boolean mScanBarcodeSettingsMenuBarcodeList = false;
     private static boolean mScanBarcodeSettingsMenuBarcode = false;
-    private FrameLayout mScanSettingsMenuBarcodeList = null;
-    private FrameLayout mScanSettingsMenuBarcode = null;
+//    private FrameLayout mScanSettingsMenuBarcodeList = null;
+//    private FrameLayout mScanSettingsMenuBarcode = null;
 //    private ScanSettingsBarcode mScanSettingsBarcode = null;
 //    private SettingsBarcodeList mSettingsBarcodeList = null;
-    ;
     private static Map<String, BarcodeHolder> mBarcodeMap = new HashMap<String, BarcodeHolder>();
 
     private static final int MSG_SHOW_SCAN_RESULT = 1;
@@ -127,6 +130,7 @@ public class ScannerManagerHelper {
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
             LogI("onReceive , action:" + action);
+
             // Get Scan Image . Make sure to make a request before getting a scanned image
             if (ACTION_CAPTURE_IMAGE.equals(action)) {
                 byte[] imagedata = intent.getByteArrayExtra(DECODE_CAPTURE_IMAGE_KEY);
@@ -150,10 +154,16 @@ public class ScannerManagerHelper {
                 }
                 LogI("barcode type:" + temp);
                 String scanResult = new String(barcode, 0, barcodeLen);
+                HashMap<String,Object> scanResultMap = new HashMap<String,Object>();
+
                 // print scan results.
-                scanResult = " length：" + barcodeLen + "\nbarcode：" + scanResult + "\nbytesToHexString：" + bytesToHexString(barcode) + "\nbarcodeStr:" + barcodeStr;
+                scanResultMap.put("length",barcodeLen);
+                scanResultMap.put("barcode",scanResult);
+                scanResultMap.put("bytesToHexString",bytesToHexString(barcode));
+                scanResultMap.put("barcodeStr",barcodeStr);
+//                scanResult = " length：" + barcodeLen + "\nbarcode：" + scanResult + "\nbytesToHexString：" + bytesToHexString(barcode) + "\nbarcodeStr:" + barcodeStr;
                 Message msg = mHandler.obtainMessage(MSG_SHOW_SCAN_RESULT);
-                msg.obj = scanResult;
+                msg.obj = scanResultMap;
                 mHandler.sendMessage(msg);
             }
         }
@@ -166,18 +176,16 @@ public class ScannerManagerHelper {
             super.handleMessage(msg);
             switch (msg.what) {
                 case MSG_SHOW_SCAN_RESULT:
-                    String scanResult = (String) msg.obj;
-                    printScanResult(scanResult);
+                    HashMap<String,Object> scanResult = (HashMap<String,Object>) msg.obj;
+                    if(LaserScannerPlugin.attachEvent != null){
+                        LaserScannerPlugin.attachEvent.success(scanResult);
+                    }else{
+                        Log.d("TAG","NULL RỒI");
+                    }
                     break;
                 case MSG_SHOW_SCAN_IMAGE:
-                    if (mScanImage != null && mScanCaptureImageShow) {
+                    if (mScanCaptureImageShow) {
                         Bitmap bitmap = (Bitmap) msg.obj;
-                        mScanImage.setImageBitmap(bitmap);
-                        mScanImage.setVisibility(View.VISIBLE);
-                    } else {
-                        mScanCaptureImageShow = false;
-                        mScanImage.setVisibility(View.INVISIBLE);
-                        LogI("handleMessage , MSG_SHOW_SCAN_IMAGE scan image:" + mScanImage);
                     }
                     break;
             }
@@ -215,7 +223,7 @@ public class ScannerManagerHelper {
     /**
      * @param register , ture register , false unregister
      */
-    private void registerReceiver(boolean register) {
+    public void registerReceiver(boolean register) {
         if (register && mScanManager != null) {
             IntentFilter filter = new IntentFilter();
             int[] idbuf = new int[]{PropertyID.WEDGE_INTENT_ACTION_NAME, PropertyID.WEDGE_INTENT_DATA_STRING_TAG};
@@ -227,10 +235,10 @@ public class ScannerManagerHelper {
             }
             filter.addAction(ACTION_CAPTURE_IMAGE);
 
-            registerReceiver(mReceiver, filter);
+            context.registerReceiver(mReceiver, filter);
         } else if (mScanManager != null) {
             mScanManager.stopDecode();
-            unregisterReceiver(mReceiver);
+//            unregisterReceiver(mReceiver);
         }
     }
 
@@ -256,47 +264,22 @@ public class ScannerManagerHelper {
         return stringBuilder.toString();
     }
 
-    /**
-     * Intent Output Mode print scan results.
-     *
-     * @param msg
-     */
-    private void printScanResult(String msg) {
-        if (msg == null || showScanResult == null) {
-            LogI("printScanResult , ignore to show msg:" + msg + ",showScanResult" + showScanResult);
-            return;
-        }
-        showScanResult.setText(msg);
-    }
 
     private void initView() {
         boolean enable = getDecodeScanShared(DECODE_ENABLE);
         mScanEnable = enable;
-//        showScanResult = (EditText) findViewById(R.id.scan_result);
-//        mScan = (Button) findViewById(R.id.scan_trigger);
-//        ButtonListener listener = new ButtonListener();
-//        mScan.setOnTouchListener(listener);
-//        mScan.setOnClickListener(listener);
-
-//        mScanImage = (ImageView) findViewById(R.id.scan_image);
-//        mScanCaptureImageShow = getDecodeScanShared(DECODE_CAPTURE_IMAGE_SHOW);
-//        updateCaptureImage();
-//        mFlagment = (FrameLayout) findViewById(R.id.fl);
-//        mScanSettingsMenuBarcodeList = (FrameLayout) findViewById(R.id.flagment_menu_barcode_list);
-//        mScanSettingsMenuBarcode = (FrameLayout) findViewById(R.id.flagment_menu_barcode);
-//        mHome = (LinearLayout) findViewById(R.id.homeshow);
     }
 
     private void updateCaptureImage() {
-        if (mScanImage == null) {
-            LogI("updateCaptureImage ignore.");
-            return;
-        }
-        if (mScanCaptureImageShow) {
-            mScanImage.setVisibility(View.VISIBLE);
-        } else {
-            mScanImage.setVisibility(View.INVISIBLE);
-        }
+//        if (mScanImage == null) {
+//            LogI("updateCaptureImage ignore.");
+//            return;
+//        }
+//        if (mScanCaptureImageShow) {
+//            mScanImage.setVisibility(View.VISIBLE);
+//        } else {
+//            mScanImage.setVisibility(View.INVISIBLE);
+//        }
     }
 
     private void scanSettingsUpdate() {
@@ -311,13 +294,13 @@ public class ScannerManagerHelper {
 
         mScanBarcodeSettingsMenuBarcodeList = false;
         mScanBarcodeSettingsMenuBarcode = false;
-        mScanSettingsMenuBarcode.setVisibility(View.GONE);
-        mScanSettingsMenuBarcodeList.setVisibility(View.GONE);
+//        mScanSettingsMenuBarcode.setVisibility(View.GONE);
+//        mScanSettingsMenuBarcodeList.setVisibility(View.GONE);
 
-        if (settings != null) {
-            settings.setVisible(false);
-        }
-        mFlagment.setVisibility(View.VISIBLE);
+//        if (settings != null) {
+//            settings.setVisible(false);
+//        }
+//        mFlagment.setVisibility(View.VISIBLE);
     }
 
     /**
@@ -334,13 +317,13 @@ public class ScannerManagerHelper {
         mScanSettingsView = true;
         mScanBarcodeSettingsMenuBarcodeList = true;
         mScanBarcodeSettingsMenuBarcode = false;
-        mFlagment.setVisibility(View.GONE);
-        mHome.setVisibility(View.GONE);
-        mScanSettingsMenuBarcode.setVisibility(View.GONE);
-        mScanSettingsMenuBarcodeList.setVisibility(View.VISIBLE);
-        if (settings != null) {
-            settings.setVisible(false);
-        }
+//        mFlagment.setVisibility(View.GONE);
+//        mHome.setVisibility(View.GONE);
+//        mScanSettingsMenuBarcode.setVisibility(View.GONE);
+//        mScanSettingsMenuBarcodeList.setVisibility(View.VISIBLE);
+//        if (settings != null) {
+//            settings.setVisible(false);
+//        }
     }
 
     /**
@@ -352,25 +335,26 @@ public class ScannerManagerHelper {
         mScanBarcodeSettingsMenuBarcode = true;
         android.util.Log.d(TAG, "updateScanSettingsBarcode , key:" + key);
 //        FragmentManager fm = this.getFragmentManager();
-        FragmentTransaction ft = fm.beginTransaction();
+//        FragmentTransaction ft = fm.beginTransaction();
         android.util.Log.d(TAG, "updateScanSettingsBarcode , isEmpty:");
-        mScanSettingsBarcode = new ScanSettingsBarcode();
-        mScanSettingsBarcode.setScanManagerDemo(this, key);
+//        mScanSettingsBarcode = new ScanSettingsBarcode();
+//        mScanSettingsBarcode.setScanManagerDemo(this, key);
 //        ft.replace(R.id.flagment_menu_barcode, mScanSettingsBarcode);
 //        ft.commit();
-        mHome.setVisibility(View.GONE);
-        mFlagment.setVisibility(View.GONE);
-        mScanSettingsMenuBarcodeList.setVisibility(View.GONE);
-        mScanSettingsMenuBarcode.setVisibility(View.VISIBLE);
-        if (settings != null) {
-            settings.setVisible(false);
-        }
+//        mHome.setVisibility(View.GONE);
+//        mFlagment.setVisibility(View.GONE);
+//        mScanSettingsMenuBarcodeList.setVisibility(View.GONE);
+//        mScanSettingsMenuBarcode.setVisibility(View.VISIBLE);
+//        if (settings != null) {
+//            settings.setVisible(false);
+//        }
     }
 
     private int getDecodeIntShared(String key) {
-        SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
-        int value = sharedPrefs.getInt(key, 1);
-        return value;
+//        SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
+//        int value = sharedPrefs.getInt(key, 1);
+//        return value;
+        return 0;
     }
 
     /**
@@ -380,25 +364,26 @@ public class ScannerManagerHelper {
      * @param value
      */
     private void updateIntShared(String key, int value) {
-        if (key == null || "".equals(key.trim())) {
-            LogI("updateIntShared , key:" + key);
-            return;
-        }
-        SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
-        if (value == getDecodeIntShared(key)) {
-            LogI("updateIntShared ,ignore key:" + key + " update.");
-            return;
-        }
-        SharedPreferences.Editor editor = sharedPrefs.edit();
-        editor.putInt(key, value);
-        editor.apply();
-        editor.commit();
+//        if (key == null || "".equals(key.trim())) {
+//            LogI("updateIntShared , key:" + key);
+//            return;
+//        }
+//        SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
+//        if (value == getDecodeIntShared(key)) {
+//            LogI("updateIntShared ,ignore key:" + key + " update.");
+//            return;
+//        }
+//        SharedPreferences.Editor editor = sharedPrefs.edit();
+//        editor.putInt(key, value);
+//        editor.apply();
+//        editor.commit();
     }
 
     private String getDecodeStringShared(String key) {
-        SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
-        String value = sharedPrefs.getString(key, "");
-        return value;
+//        SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
+//        String value = sharedPrefs.getString(key, "");
+//        return value;
+        return "";
     }
 
     /**
@@ -408,19 +393,19 @@ public class ScannerManagerHelper {
      * @param value
      */
     private void updateStringShared(String key, String value) {
-        if (key == null || "".equals(key.trim())) {
-            LogI("updateStringShared , key:" + key);
-            return;
-        }
-        SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
-        if (value == getDecodeStringShared(key) || "".equals(value.trim())) {
-            LogI("updateStringShared ,ignore key:" + key + " update.");
-            return;
-        }
-        SharedPreferences.Editor editor = sharedPrefs.edit();
-        editor.putString(key, value);
-        editor.apply();
-        editor.commit();
+//        if (key == null || "".equals(key.trim())) {
+//            LogI("updateStringShared , key:" + key);
+//            return;
+//        }
+//        SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
+//        if (value == getDecodeStringShared(key) || "".equals(value.trim())) {
+//            LogI("updateStringShared ,ignore key:" + key + " update.");
+//            return;
+//        }
+//        SharedPreferences.Editor editor = sharedPrefs.edit();
+//        editor.putString(key, value);
+//        editor.apply();
+//        editor.commit();
     }
 
     private boolean getDecodeScanShared(String key) {
@@ -436,7 +421,7 @@ public class ScannerManagerHelper {
      * @param key
      * @param enable
      */
-//    private void updateScanShared(String key, boolean enable) {
+    private void updateScanShared(String key, boolean enable) {
 //        if (key == null || "".equals(key.trim())) {
 //            LogI("updateScanShared , key:" + key);
 //            return;
@@ -450,28 +435,19 @@ public class ScannerManagerHelper {
 //        editor.putBoolean(key, enable);
 //        editor.apply();
 //        editor.commit();
-//    }
+    }
 
     // Init scan [IMPORTTANT].
-    private void initScan() {
+    public void initScan() {
         mScanManager = new ScanManager();
-        boolean powerOn = mScanManager.getScannerState();
-//        if (!powerOn) {
-//            powerOn = mScanManager.openScanner();
-//            if (!powerOn) {
-//                AlertDialog.Builder builder = new AlertDialog.Builder(this);
-//                builder.setMessage("Scanner cannot be turned on!");
-//                builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-//                    @Override
-//                    public void onClick(DialogInterface dialog, int which) {
-//                        dialog.dismiss();
-//                    }
-//                });
-//                AlertDialog mAlertDialog = builder.create();
-//                mAlertDialog.show();
-//            }
-//        }
+        mScanManager.openScanner();
 //        initBarcodeParameters();
+    }
+
+    // Init scan [IMPORTTANT].
+    public boolean getStatusOfScan(){
+        boolean powerOn = mScanManager.getScannerState();
+        return powerOn;
     }
 
     /**
@@ -514,6 +490,7 @@ public class ScannerManagerHelper {
      *
      * @return
      */
+    // [IMPORTTANT].
     private int getScanOutputMode() {
         int mode = mScanManager.getOutputMode();
         return mode;
@@ -524,6 +501,7 @@ public class ScannerManagerHelper {
      *
      * @param mode
      */
+    //[IMPORTTANT].
     private void setScanOutputMode(int mode) {
         int currentMode = getScanOutputMode();
         if (mode != currentMode && (mode == DECODE_OUTPUT_MODE_FOCUS ||
@@ -541,9 +519,6 @@ public class ScannerManagerHelper {
         }
     }
 
-//    private void resetScanner() {
-//        showResetDialog();
-//    }
 
     /**
      * ScanManager.getTriggerLockState

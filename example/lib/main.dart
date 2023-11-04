@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'dart:async';
 
@@ -28,12 +30,21 @@ class _MyAppState extends State<MyApp> {
   }
 
   @override
-  void onDispose(){
+  void onDispose() {
     _controller.dispose();
   }
 
-  Future<void> openScanner()async{
-    _laserScannerPlugin.openScanner();
+  Future<void> openScanner() async {
+    await _laserScannerPlugin.openScanner();
+    await onListenerScanner();
+  }
+
+  Future<void> onListenerScanner() async {
+    await _laserScannerPlugin.onListenerScanner(onListenerResultScanner: (value) {
+      // doSomething.
+      print("Kết quả 3: ${value?.toJson()}");
+      // _controller.text = value ?? '';
+    });
   }
 
   // Platform messages are asynchronous, so we initialize in an async method.
@@ -42,8 +53,7 @@ class _MyAppState extends State<MyApp> {
     // Platform messages may fail, so we use a try/catch PlatformException.
     // We also handle the message potentially returning null.
     try {
-      platformVersion =
-          await _laserScannerPlugin.getPlatformVersion() ?? 'Unknown platform version';
+      platformVersion = await _laserScannerPlugin.getPlatformVersion() ?? 'Unknown platform version';
     } on PlatformException {
       platformVersion = 'Failed to get platform version.';
     }
@@ -69,7 +79,10 @@ class _MyAppState extends State<MyApp> {
           child: Column(
             children: [
               Text('Running on: $_platformVersion\n'),
-              TextField(controller: _controller,maxLines: 10,)
+              TextField(
+                controller: _controller,
+                maxLines: 10,
+              )
             ],
           ),
         ),

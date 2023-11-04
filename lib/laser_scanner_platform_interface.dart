@@ -1,3 +1,4 @@
+import 'package:laser_scanner/model/result_scan_intent_model.dart';
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 
 import 'laser_scanner_method_channel.dart';
@@ -31,8 +32,16 @@ abstract class LaserScannerPlatform extends PlatformInterface {
     throw UnimplementedError('openScanner() has not been implemented.');
   }
 
-  Future<String?> onListenerResultScanner() {
+  Future<void> onListenerResultScanner({required Function(ResultScanIntentModel? value ) onListenerResultScanner}) {
     throw UnimplementedError('onListenerResultScanner() has not been implemented.');
   }
+
+  Future<bool> isTurnOn() {
+    throw UnimplementedError('onListenerResultScanner() has not been implemented.');
+  }
+
+  // Future<dynamic> setScannerMethodCallHandler() {
+  //   throw UnimplementedError('onListenerResultScanner() has not been implemented.');
+  // }
 
 }
