@@ -1,10 +1,8 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'dart:async';
-
-import 'package:flutter/services.dart';
 import 'package:laser_scanner/laser_scanner.dart';
+import 'package:laser_scanner/model/scan_result_model.dart';
+import 'package:laser_scanner/utils/enum_utils.dart';
 
 void main() {
   runApp(const MyApp());
@@ -18,54 +16,39 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  String _platformVersion = 'Unknown';
   final _laserScannerPlugin = LaserScanner();
-  final TextEditingController _controller = TextEditingController();
+  ScanResultModel scanResultModel = ScanResultModel();
 
   @override
   void initState() {
     super.initState();
-    initPlatformState();
-    openScanner();
+    _openScanner();
   }
 
-  @override
-  void onDispose() {
-    _controller.dispose();
-  }
-
-  Future<void> openScanner() async {
-    await _laserScannerPlugin.openScanner();
+  Future<void> _openScanner() async {
+    await _laserScannerPlugin.openScanner(
+      captureImageShow: true,
+    );
+    _setTrigger();
+    _getTrigger();
     await onListenerScanner();
   }
 
   Future<void> onListenerScanner() async {
     await _laserScannerPlugin.onListenerScanner(onListenerResultScanner: (value) {
-      // doSomething.
-      print("Kết quả 3: ${value?.toJson()}");
-      // _controller.text = value ?? '';
+      setState(() {
+        scanResultModel = value ?? ScanResultModel();
+      });
+      _laserScannerPlugin.stopDecode();
     });
   }
 
-  // Platform messages are asynchronous, so we initialize in an async method.
-  Future<void> initPlatformState() async {
-    String platformVersion;
-    // Platform messages may fail, so we use a try/catch PlatformException.
-    // We also handle the message potentially returning null.
-    try {
-      platformVersion = await _laserScannerPlugin.getPlatformVersion() ?? 'Unknown platform version';
-    } on PlatformException {
-      platformVersion = 'Failed to get platform version.';
-    }
+  void _setTrigger() {
+    _laserScannerPlugin.setTrigger(triggering: Triggering.HOST);
+  }
 
-    // If the widget was removed from the tree while the asynchronous platform
-    // message was in flight, we want to discard the reply rather than calling
-    // setState to update our non-existent appearance.
-    if (!mounted) return;
-
-    setState(() {
-      _platformVersion = platformVersion;
-    });
+  void _getTrigger() async {
+    await _laserScannerPlugin.getTriggerMode();
   }
 
   @override
@@ -73,15 +56,38 @@ class _MyAppState extends State<MyApp> {
     return MaterialApp(
       home: Scaffold(
         appBar: AppBar(
-          title: const Text('Plugin example app'),
+          title: const Text('Laser scanner'),
         ),
         body: Center(
           child: Column(
             children: [
-              Text('Running on: $_platformVersion\n'),
-              TextField(
-                controller: _controller,
-                maxLines: 10,
+              Text('barcode: ${scanResultModel.barcode}'),
+              const SizedBox(
+                height: 10,
+              ),
+              Text('barcodeStr: ${scanResultModel.barcodeStr}'),
+              const SizedBox(
+                height: 10,
+              ),
+              Text('bytesToHexString: ${scanResultModel.bytesToHexString}'),
+              const SizedBox(
+                height: 10,
+              ),
+              Text('length: ${scanResultModel.length}'),
+              const SizedBox(
+                height: 100,
+              ),
+              if (scanResultModel.image != null)
+                SizedBox(
+                    height: 200, width: MediaQuery.of(context).size.width, child: Image.memory(scanResultModel.image!)),
+              const SizedBox(
+                height: 100,
+              ),
+              MaterialButton(
+                onPressed: () {
+                  _laserScannerPlugin.startDecode();
+                },
+                child: const Text("Scan"),
               )
             ],
           ),

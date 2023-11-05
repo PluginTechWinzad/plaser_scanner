@@ -1,6 +1,8 @@
 package com.laser_scanner.laser_scanner;
 
 import android.content.Context;
+import android.device.scanner.configuration.Symbology;
+import android.device.scanner.configuration.Triggering;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -8,6 +10,7 @@ import androidx.annotation.NonNull;
 import com.laser_scanner.laser_scanner.events.ResultEventChannel;
 import com.laser_scanner.laser_scanner.scanner.ScannerManagerHelper;
 
+import java.util.HashMap;
 import java.util.Objects;
 
 import io.flutter.embedding.engine.plugins.FlutterPlugin;
@@ -55,7 +58,8 @@ public class LaserScannerPlugin implements FlutterPlugin, MethodCallHandler {
       result.success("Android " + android.os.Build.VERSION.RELEASE);
     }else if(call.method.equals("openScanner")){
       // Call function open scanner.
-      scanner.initScan();
+      boolean captureImageShow = (boolean)call.arguments;
+      scanner.initScan(captureImageShow);
       scanner.registerReceiver(true);
       result.success(null);
     }else if(call.method.equals("closeScanner")){
@@ -74,6 +78,14 @@ public class LaserScannerPlugin implements FlutterPlugin, MethodCallHandler {
       int mode = ( int)call.arguments;
       scanner.setScanOutputMode(mode);
       result.success(null);
+    }else if(call.method.equals("setTrigger")){
+      int triggeringIndex = ( int)call.arguments;
+      Triggering triggering = fromInt(triggeringIndex);
+      scanner.setTrigger(triggering);
+      result.success(null);
+    }else if(call.method.equals("getTriggerMode")){
+      Triggering triggering = scanner.getTriggerMode();
+      result.success(triggering.toInt());
     } else if(call.method.equals("getlockTriggerState")){
       boolean status = scanner.getlockTriggerState();
       result.success(status);
@@ -81,8 +93,24 @@ public class LaserScannerPlugin implements FlutterPlugin, MethodCallHandler {
       boolean state = (boolean)call.arguments;
       scanner.updateLockTriggerState(state);
       result.success(null);
+    }else if(call.method.equals("enableSymbology")){
+      HashMap<String,Object> arg = (HashMap<String,Object>)call.arguments;
+      boolean enable = (boolean)arg.get("enable");
+      int symbology = (int)arg.get("symbology");
+      Symbology symbologyScan = Symbology.fromInt(symbology);
+      boolean enableSymbology = scanner.enableSymbology(symbologyScan,enable);
+      result.success(enableSymbology);
+    }else if(call.method.equals("setUnVibrate")){
+      result.success(null);
+    }else if(call.method.equals("setVibrate")){
+      result.success(null);
+    } else if(call.method.equals("startDecode")){
+      scanner.startDecode();
+      result.success(null);
+    } else if(call.method.equals("stopDecode")){
+      scanner.stopDecode();
+      result.success(null);
     } else {
-
       result.notImplemented();
     }
   }
@@ -110,5 +138,13 @@ public class LaserScannerPlugin implements FlutterPlugin, MethodCallHandler {
     );
   }
 
+  public Triggering fromInt(int n) {
+    for(int i = 0; i < Triggering.values().length; ++i) {
+      if (Triggering.values()[i].toInt() == n) {
+        return Triggering.values()[i];
+      }
+    }
+    return Triggering.HOST;
+  }
 
 }
