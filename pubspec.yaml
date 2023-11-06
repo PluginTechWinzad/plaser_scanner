@@ -1,6 +1,6 @@
 name: laser_scanner
 description: A Dart Library for Scanning Barcodes and QR Codes with Laser
-version: 0.0.1
+version: 0.0.1+1
 repository: https://github.com/PluginTechWinzad/plaser_scanner
 environment:
   sdk: '>=2.19.0 <4.0.0'
