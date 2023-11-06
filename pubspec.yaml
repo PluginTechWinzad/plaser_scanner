@@ -24,6 +24,6 @@ flutter:
       android:
         package: com.laser_scanner.laser_scanner
         pluginClass: LaserScannerPlugin
-      ios:
-        pluginClass: LaserScannerPlugin
+      # ios:
+      #   pluginClass: LaserScannerPlugin
 
