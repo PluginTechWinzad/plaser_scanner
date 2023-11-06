@@ -35,7 +35,8 @@ class _MyAppState extends State<MyApp> {
   }
 
   Future<void> onListenerScanner() async {
-    await _laserScannerPlugin.onListenerScanner(onListenerResultScanner: (value) {
+    await _laserScannerPlugin.onListenerScanner(
+        onListenerResultScanner: (value) {
       setState(() {
         scanResultModel = value ?? ScanResultModel();
       });
@@ -79,7 +80,9 @@ class _MyAppState extends State<MyApp> {
               ),
               if (scanResultModel.image != null)
                 SizedBox(
-                    height: 200, width: MediaQuery.of(context).size.width, child: Image.memory(scanResultModel.image!)),
+                    height: 200,
+                    width: MediaQuery.of(context).size.width,
+                    child: Image.memory(scanResultModel.image!)),
               const SizedBox(
                 height: 100,
               ),

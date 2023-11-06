@@ -2,7 +2,6 @@ import 'dart:convert';
 
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 
-
 class SymbologyModel {
   final bool enable;
   final int symbology;
@@ -27,5 +26,6 @@ class SymbologyModel {
 
   String toJson() => json.encode(toMap());
 
-  factory SymbologyModel.fromJson(String source) => SymbologyModel.fromMap(json.decode(source) as Map<String, dynamic>);
+  factory SymbologyModel.fromJson(String source) =>
+      SymbologyModel.fromMap(json.decode(source) as Map<String, dynamic>);
 }

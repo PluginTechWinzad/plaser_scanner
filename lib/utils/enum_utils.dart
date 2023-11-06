@@ -76,10 +76,10 @@ Map<Triggering, int> triggeringValues = {
   Triggering.CONTINUOUS: 4,
 };
 
-Map<int,Triggering> triggeringValuesFromInt = {
-  8: Triggering.HOST ,
+Map<int, Triggering> triggeringValuesFromInt = {
+  8: Triggering.HOST,
   2: Triggering.PULSE,
-  4: Triggering.CONTINUOUS ,
+  4: Triggering.CONTINUOUS,
 };
 
 Map<Symbology, int> symbologyValues = {

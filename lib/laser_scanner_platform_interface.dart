@@ -38,12 +38,15 @@ abstract class LaserScannerPlatform extends PlatformInterface {
     throw UnimplementedError('openScanner() has not been implemented.');
   }
 
-  Future<void> onListenerResultScanner({required Function(ScanResultModel? value) onListenerResultScanner}) {
-    throw UnimplementedError('onListenerResultScanner() has not been implemented.');
+  Future<void> onListenerResultScanner(
+      {required Function(ScanResultModel? value) onListenerResultScanner}) {
+    throw UnimplementedError(
+        'onListenerResultScanner() has not been implemented.');
   }
 
   Future<bool> isTurnOn() {
-    throw UnimplementedError('onListenerResultScanner() has not been implemented.');
+    throw UnimplementedError(
+        'onListenerResultScanner() has not been implemented.');
   }
 
   Future<ScanOutputMode> getScanOutputMode() {
@@ -73,15 +76,19 @@ abstract class LaserScannerPlatform extends PlatformInterface {
   Future<Triggering?> getTriggerMode() {
     throw UnimplementedError('getTriggerMode() has not been implemented.');
   }
+
   Future<void> unVibrate() {
     throw UnimplementedError('setUnVibrate() has not been implemented.');
   }
+
   Future<void> enableVibrate() {
     throw UnimplementedError('setVibrate() has not been implemented.');
   }
+
   Future<void> startDecode() {
     throw UnimplementedError('startDecode() has not been implemented.');
   }
+
   Future<void> stopDecode() {
     throw UnimplementedError('stopDecode() has not been implemented.');
   }

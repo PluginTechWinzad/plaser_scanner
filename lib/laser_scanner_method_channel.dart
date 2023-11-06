@@ -18,7 +18,7 @@ class MethodChannelLaserScanner extends LaserScannerPlatform {
   /// Returns a Future that completes when the scanner is opened.
   @override
   Future<void> openScanner({bool? captureImageShow = false}) async {
-    await methodChannel.invokeMethod<String>('openScanner',captureImageShow);
+    await methodChannel.invokeMethod<String>('openScanner', captureImageShow);
   }
 
   /// Closes the barcode scanner and returns the closing status.
@@ -35,7 +35,8 @@ class MethodChannelLaserScanner extends LaserScannerPlatform {
   /// The [onListenerResultScanner] parameter is a callback function that will be called with
   /// the scanning result when a scan is performed.
   @override
-  Future<void> onListenerResultScanner({required onListenerResultScanner}) async {
+  Future<void> onListenerResultScanner(
+      {required onListenerResultScanner}) async {
     await methodChannel.invokeMethod<String>('onListenerResultScanner');
     _eventChanelScanner(onListenerResultScanner: onListenerResultScanner);
   }
@@ -56,7 +57,8 @@ class MethodChannelLaserScanner extends LaserScannerPlatform {
   void _eventChanelScanner({required onListenerResultScanner}) {
     const eventChannel = EventChannel(SCANNER_RESULT);
     eventChannel.receiveBroadcastStream().listen((event) {
-      final ScanResultModel resultScanIntentModel = ScanResultModel.fromMapScanResult(event);
+      final ScanResultModel resultScanIntentModel =
+          ScanResultModel.fromMapScanResult(event);
       onListenerResultScanner(resultScanIntentModel);
     });
   }
@@ -66,7 +68,8 @@ class MethodChannelLaserScanner extends LaserScannerPlatform {
   /// Returns a Future with a [ScanOutputMode] enum value indicating the output mode.
   @override
   Future<ScanOutputMode> getScanOutputMode() async {
-    final scanOutputMode = await methodChannel.invokeMethod<int>('getScanOutputMode');
+    final scanOutputMode =
+        await methodChannel.invokeMethod<int>('getScanOutputMode');
     return ScanOutputMode.values[scanOutputMode ?? 0];
   }
 
@@ -74,7 +77,8 @@ class MethodChannelLaserScanner extends LaserScannerPlatform {
   ///
   /// The [scanOutputMode] parameter is a [ScanOutputMode] enum value that specifies the desired output mode.
   @override
-  Future<void> setScanOutputMode({required ScanOutputMode scanOutputMode}) async {
+  Future<void> setScanOutputMode(
+      {required ScanOutputMode scanOutputMode}) async {
     await methodChannel.invokeMethod(
       'setScanOutputMode',
       scanOutputModeValues[scanOutputMode],
@@ -86,7 +90,8 @@ class MethodChannelLaserScanner extends LaserScannerPlatform {
   /// Returns a Future with a boolean indicating the state of the trigger lock mechanism.
   @override
   Future<bool?> getlockTriggerState() async {
-    final scanOutputMode = await methodChannel.invokeMethod<bool>('getlockTriggerState');
+    final scanOutputMode =
+        await methodChannel.invokeMethod<bool>('getlockTriggerState');
     return scanOutputMode;
   }
 
@@ -105,7 +110,8 @@ class MethodChannelLaserScanner extends LaserScannerPlatform {
   /// Returns a Future with a boolean indicating the success of enabling the symbology.
   @override
   Future<bool> enableSymbology({required SymbologyModel symbology}) async {
-    bool enableSymbology = await methodChannel.invokeMethod('enableSymbology', symbology.toMap());
+    bool enableSymbology =
+        await methodChannel.invokeMethod('enableSymbology', symbology.toMap());
     return enableSymbology;
   }
 
@@ -125,7 +131,8 @@ class MethodChannelLaserScanner extends LaserScannerPlatform {
   ///
   @override
   Future<void> setTrigger({required Triggering triggering}) async {
-    await methodChannel.invokeMethod('setTrigger', triggeringValues[triggering]);
+    await methodChannel.invokeMethod(
+        'setTrigger', triggeringValues[triggering]);
   }
 
   /// Gets the current triggering mode of the scanner.

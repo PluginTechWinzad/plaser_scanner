@@ -10,15 +10,19 @@ class LaserScanner {
   /// This method opens the laser scanner.
   /// [captureImageShowResult] Capture scanned images
   Future<void> openScanner({bool? captureImageShow = false}) async {
-    LaserScannerPlatform.instance.openScanner(captureImageShow: captureImageShow);
+    LaserScannerPlatform.instance
+        .openScanner(captureImageShow: captureImageShow);
   }
 
   /// Listen for scan results.
   ///
   /// This method allows you to set up a listener to receive scan results.
   /// [onListenerResultScanner] is a callback function that receives a String? value.
-  Future<void> onListenerScanner({required Function(ScanResultModel? value) onListenerResultScanner}) async {
-    await LaserScannerPlatform.instance.onListenerResultScanner(onListenerResultScanner: onListenerResultScanner);
+  Future<void> onListenerScanner(
+      {required Function(ScanResultModel? value)
+          onListenerResultScanner}) async {
+    await LaserScannerPlatform.instance.onListenerResultScanner(
+        onListenerResultScanner: onListenerResultScanner);
   }
 
   /// Check if the scanner is turned on.
@@ -32,14 +36,16 @@ class LaserScanner {
   ///
   /// Returns a Future with a [ScanOutputMode] enum value indicating the output mode.
   Future<ScanOutputMode> getScanOutputMode() async {
-    final scanOutputMode = await LaserScannerPlatform.instance.getScanOutputMode();
+    final scanOutputMode =
+        await LaserScannerPlatform.instance.getScanOutputMode();
     return scanOutputMode;
   }
 
   /// Sets the output mode for the scanning process.
   ///
   /// The [scanOutputMode] parameter is a [ScanOutputMode] enum value that specifies the desired output mode.
-  Future<void> setScanOutputMode({required ScanOutputMode scanOutputMode}) async {
+  Future<void> setScanOutputMode(
+      {required ScanOutputMode scanOutputMode}) async {
     await LaserScannerPlatform.instance.setScanOutputMode(
       scanOutputMode: scanOutputMode,
     );
@@ -49,7 +55,8 @@ class LaserScanner {
   ///
   /// Returns a Future with a boolean indicating the state of the trigger lock mechanism.
   Future<bool?> getlockTriggerState() async {
-    final scanOutputMode = await LaserScannerPlatform.instance.getlockTriggerState();
+    final scanOutputMode =
+        await LaserScannerPlatform.instance.getlockTriggerState();
     return scanOutputMode;
   }
 
@@ -66,7 +73,8 @@ class LaserScanner {
   ///
   /// Returns a Future with a boolean indicating the success of enabling the symbology.
   Future<bool> enableSymbology({required SymbologyModel symbology}) async {
-    bool enableSymbology = await LaserScannerPlatform.instance.enableSymbology(symbology: symbology);
+    bool enableSymbology = await LaserScannerPlatform.instance
+        .enableSymbology(symbology: symbology);
     return enableSymbology;
   }
 
@@ -92,7 +100,8 @@ class LaserScanner {
   ///
   /// Returns a Future with a [Triggering] enum value indicating the current triggering mode.
   Future<Triggering?> getTriggerMode() async {
-    Triggering? triggerMode = await LaserScannerPlatform.instance.getTriggerMode();
+    Triggering? triggerMode =
+        await LaserScannerPlatform.instance.getTriggerMode();
 
     return triggerMode;
   }
