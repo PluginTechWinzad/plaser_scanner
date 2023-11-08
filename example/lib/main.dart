@@ -18,11 +18,18 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> {
   final _laserScannerPlugin = LaserScanner();
   ScanResultModel scanResultModel = ScanResultModel();
+  StreamSubscription? subscription;
 
   @override
   void initState() {
     super.initState();
     _openScanner();
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    subscription?.cancel();
   }
 
   Future<void> _openScanner() async {
@@ -35,8 +42,7 @@ class _MyAppState extends State<MyApp> {
   }
 
   Future<void> onListenerScanner() async {
-    await _laserScannerPlugin.onListenerScanner(
-        onListenerResultScanner: (value) {
+    subscription = await _laserScannerPlugin.onListenerScanner(onListenerResultScanner: (value) {
       setState(() {
         scanResultModel = value ?? ScanResultModel();
       });
@@ -80,9 +86,7 @@ class _MyAppState extends State<MyApp> {
               ),
               if (scanResultModel.image != null)
                 SizedBox(
-                    height: 200,
-                    width: MediaQuery.of(context).size.width,
-                    child: Image.memory(scanResultModel.image!)),
+                    height: 200, width: MediaQuery.of(context).size.width, child: Image.memory(scanResultModel.image!)),
               const SizedBox(
                 height: 100,
               ),

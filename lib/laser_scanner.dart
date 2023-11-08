@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:laser_scanner/model/scan_result_model.dart';
 import 'package:laser_scanner/model/symbology_model.dart';
 import 'package:laser_scanner/utils/enum_utils.dart';
@@ -24,8 +26,8 @@ class LaserScanner {
   ///
   /// This method allows you to set up a listener to receive scan results.
   /// [onListenerResultScanner] is a callback function that receives a String? value.
-  Future<void> onListenerScanner({required Function(ScanResultModel? value) onListenerResultScanner}) async {
-    await LaserScannerPlatform.instance.onListenerResultScanner(onListenerResultScanner: onListenerResultScanner);
+  Future<StreamSubscription> onListenerScanner({required Function(ScanResultModel? value) onListenerResultScanner}) async {
+    return await LaserScannerPlatform.instance.onListenerResultScanner(onListenerResultScanner: onListenerResultScanner);
   }
 
   /// Check if the scanner is turned on.

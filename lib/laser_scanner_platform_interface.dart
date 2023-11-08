@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:laser_scanner/model/scan_result_model.dart';
 import 'package:laser_scanner/model/symbology_model.dart';
 import 'package:laser_scanner/utils/enum_utils.dart';
@@ -38,7 +40,7 @@ abstract class LaserScannerPlatform extends PlatformInterface {
     throw UnimplementedError('openScanner() has not been implemented.');
   }
 
-  Future<void> onListenerResultScanner(
+  Future<StreamSubscription> onListenerResultScanner(
       {required Function(ScanResultModel? value) onListenerResultScanner}) {
     throw UnimplementedError(
         'onListenerResultScanner() has not been implemented.');

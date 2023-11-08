@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:laser_scanner/constants/event_name.dart';
@@ -35,10 +37,10 @@ class MethodChannelLaserScanner extends LaserScannerPlatform {
   /// The [onListenerResultScanner] parameter is a callback function that will be called with
   /// the scanning result when a scan is performed.
   @override
-  Future<void> onListenerResultScanner(
+  Future<StreamSubscription> onListenerResultScanner(
       {required onListenerResultScanner}) async {
     await methodChannel.invokeMethod<String>('onListenerResultScanner');
-    _eventChanelScanner(onListenerResultScanner: onListenerResultScanner);
+    return _eventChanelScanner(onListenerResultScanner: onListenerResultScanner);
   }
 
   /// Checks if the scanner is currently turned on.
@@ -54,13 +56,14 @@ class MethodChannelLaserScanner extends LaserScannerPlatform {
   ///
   /// The [onListenerResultScanner] parameter is a callback function that will be called with
   /// the scanning result when a scan is performed.
-  void _eventChanelScanner({required onListenerResultScanner}) {
+  StreamSubscription _eventChanelScanner({required onListenerResultScanner}) {
     const eventChannel = EventChannel(SCANNER_RESULT);
-    eventChannel.receiveBroadcastStream().listen((event) {
+    StreamSubscription subscription = eventChannel.receiveBroadcastStream().listen((event) {
       final ScanResultModel resultScanIntentModel =
           ScanResultModel.fromMapScanResult(event);
       onListenerResultScanner(resultScanIntentModel);
     });
+    return subscription;
   }
 
   /// Gets the output mode of the scanning process.
