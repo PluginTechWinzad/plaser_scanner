@@ -18,16 +18,18 @@ class LaserScanner {
   /// Open the scanner.
   ///
   /// This method close the laser scanner.
-  Future<void> closeScanner() async {
-    LaserScannerPlatform.instance.closeScanner();
+  Future<bool> closeScanner() async {
+    return LaserScannerPlatform.instance.closeScanner();
   }
 
   /// Listen for scan results.
   ///
   /// This method allows you to set up a listener to receive scan results.
   /// [onListenerResultScanner] is a callback function that receives a String? value.
-  Future<StreamSubscription> onListenerScanner({required Function(ScanResultModel? value) onListenerResultScanner}) async {
-    return await LaserScannerPlatform.instance.onListenerResultScanner(onListenerResultScanner: onListenerResultScanner);
+  Future<StreamSubscription> onListenerScanner(
+      {required Function(ScanResultModel? value) onListenerResultScanner}) async {
+    return await LaserScannerPlatform.instance
+        .onListenerResultScanner(onListenerResultScanner: onListenerResultScanner);
   }
 
   /// Check if the scanner is turned on.

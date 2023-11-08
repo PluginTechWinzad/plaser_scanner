@@ -8,6 +8,7 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 
 import com.laser_scanner.laser_scanner.events.ResultEventChannel;
+import com.laser_scanner.laser_scanner.events.ResultEventChannelSingleton;
 import com.laser_scanner.laser_scanner.scanner.ScannerManagerHelper;
 
 import java.util.HashMap;
@@ -31,11 +32,7 @@ public class LaserScannerPlugin implements FlutterPlugin, MethodCallHandler {
   private MethodChannel channel;
   private EventChannel scannerResultEvent;
   private static final String STREAM = "com.laser_scanner.laser_scanner.flutter_event_channel/scanner_result";
-  public static EventChannel.EventSink attachEvent;
   private BinaryMessenger binaryMessenger;
-  public EventChannel.EventSink getAttachEvent(){
-    return attachEvent;
-  }
   @Override
   public void onAttachedToEngine(@NonNull FlutterPluginBinding flutterPluginBinding) {
     context = flutterPluginBinding.getApplicationContext();
@@ -53,8 +50,8 @@ public class LaserScannerPlugin implements FlutterPlugin, MethodCallHandler {
 
   @Override
   public void onMethodCall(@NonNull MethodCall call, @NonNull Result result) {
-    ScannerManagerHelper scanner = new ScannerManagerHelper(context);
-    if (call.method.equals("getPlatformVersion")) {
+	  ScannerManagerHelper scanner = ScannerManagerHelper.ScannerManagerHelperSingleton.getInstance(context);
+	  if (call.method.equals("getPlatformVersion")) {
       result.success("Android " + android.os.Build.VERSION.RELEASE);
     }else if(call.method.equals("openScanner")){
       // Call function open scanner.
@@ -126,13 +123,14 @@ public class LaserScannerPlugin implements FlutterPlugin, MethodCallHandler {
             new EventChannel.StreamHandler() {
               @Override
               public void onListen(Object args, final EventChannel.EventSink events) {
-                attachEvent = events;
+				  ResultEventChannelSingleton.getInstance().setEventSink(events);
               }
 
               @Override
               public void onCancel(Object args) {
-                attachEvent = null;
+			  	ResultEventChannelSingleton.getInstance().setEventSink(null);
                 System.out.println("StreamHandler - onCanceled: ");
+				
               }
             }
     );

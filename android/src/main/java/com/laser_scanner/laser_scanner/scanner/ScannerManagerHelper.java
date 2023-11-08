@@ -46,6 +46,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 
 import com.laser_scanner.laser_scanner.LaserScannerPlugin;
+import com.laser_scanner.laser_scanner.events.ResultEventChannelSingleton;
 
 import java.io.ByteArrayOutputStream;
 import java.util.HashMap;
@@ -75,6 +76,23 @@ public class ScannerManagerHelper {
         this.context = context;
         mScanManager = new ScanManager();
     };
+
+	// Tạo một lớp ScannerManagerHelperSingleton để quản lý singleton
+	public static class ScannerManagerHelperSingleton {
+		private static ScannerManagerHelper instance;
+
+		public static ScannerManagerHelper getInstance(Context context) {
+			if (instance == null) {
+				synchronized (ScannerManagerHelper.class) {
+					if (instance == null) {
+						instance = new ScannerManagerHelper(context.getApplicationContext());
+					}
+				}
+			}
+			return instance;
+		}
+	}
+
     private static final String TAG = "ScanManagerDemo";
     private static final boolean DEBUG = true;
 
@@ -157,15 +175,15 @@ public class ScannerManagerHelper {
             switch (msg.what) {
                 case MSG_SHOW_SCAN_RESULT:
                     HashMap<String,Object> scanResult = (HashMap<String,Object>) msg.obj;
-                    if(LaserScannerPlugin.attachEvent != null){
-                        LaserScannerPlugin.attachEvent.success(scanResult);
+                    if(ResultEventChannelSingleton.getInstance().getEventSink() != null){
+						ResultEventChannelSingleton.getInstance().getEventSink().success(scanResult);
                     }
                     break;
                 case MSG_SHOW_SCAN_IMAGE:
                     if (mScanCaptureImageShow) {
                         Bitmap bitmap = (Bitmap) msg.obj;
                         result.put("image",convertBipmapToByte(bitmap));
-                        LaserScannerPlugin.attachEvent.success(result);
+						ResultEventChannelSingleton.getInstance().getEventSink().success(result);
                     }
                     break;
             }
@@ -212,6 +230,7 @@ public class ScannerManagerHelper {
         }
     }
 
+
     /**
      * byte[] toHex String
      *
@@ -235,18 +254,6 @@ public class ScannerManagerHelper {
     }
 
 
-
-    private void updateCaptureImage() {
-//        if (mScanImage == null) {
-//            LogI("updateCaptureImage ignore.");
-//            return;
-//        }
-//        if (mScanCaptureImageShow) {
-//            mScanImage.setVisibility(View.VISIBLE);
-//        } else {
-//            mScanImage.setVisibility(View.INVISIBLE);
-//        }
-    }
 
 
     // Init scan
@@ -378,12 +385,14 @@ public class ScannerManagerHelper {
      */
     public boolean closeScanner() {
         boolean state = false;
+		ResultEventChannelSingleton.getInstance().setEventSink(null);
         if (mScanManager != null) {
             mScanManager.stopDecode();
             state = mScanManager.closeScanner();
         }
         return state;
     }
+
 
     /**
      * Obtain an instance of BarCodeReader with ScanManager
