@@ -7,6 +7,15 @@ import 'package:laser_scanner/utils/enum_utils.dart';
 import 'laser_scanner_platform_interface.dart';
 
 class LaserScanner {
+  /// Check device support
+  ///
+  /// [true] if device has support larse scan.
+  /// [false] Device hasn't support larse scan.
+  Future<bool?> isSupport() async {
+    final isSupport = await LaserScannerPlatform.instance.isSupport();
+    return isSupport ?? false;
+  }
+
   /// Open the scanner.
   ///
   /// This method opens the laser scanner.
@@ -26,8 +35,10 @@ class LaserScanner {
   ///
   /// This method allows you to set up a listener to receive scan results.
   /// [onListenerResultScanner] is a callback function that receives a String? value.
-  Future<StreamSubscription> onListenerScanner({required Function(ScanResultModel? value) onListenerResultScanner}) async {
-    return await LaserScannerPlatform.instance.onListenerResultScanner(onListenerResultScanner: onListenerResultScanner);
+  Future<StreamSubscription> onListenerScanner(
+      {required Function(ScanResultModel? value) onListenerResultScanner}) async {
+    return await LaserScannerPlatform.instance
+        .onListenerResultScanner(onListenerResultScanner: onListenerResultScanner);
   }
 
   /// Check if the scanner is turned on.

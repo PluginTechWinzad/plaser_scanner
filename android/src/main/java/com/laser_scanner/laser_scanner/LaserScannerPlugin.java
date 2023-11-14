@@ -56,7 +56,10 @@ public class LaserScannerPlugin implements FlutterPlugin, MethodCallHandler {
     ScannerManagerHelper scanner = new ScannerManagerHelper(context);
     if (call.method.equals("getPlatformVersion")) {
       result.success("Android " + android.os.Build.VERSION.RELEASE);
-    }else if(call.method.equals("openScanner")){
+    }else if(call.method.equals("isSupport")){
+      boolean isSupport =  scanner.isSupport();
+      result.success(isSupport);
+    } else if(call.method.equals("openScanner")){
       // Call function open scanner.
       boolean captureImageShow = (boolean)call.arguments;
       scanner.initScan(captureImageShow);

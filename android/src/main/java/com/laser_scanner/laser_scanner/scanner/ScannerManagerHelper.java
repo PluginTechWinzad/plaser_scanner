@@ -410,6 +410,19 @@ public class ScannerManagerHelper {
         return powerOn;
     }
 
+    public boolean isSupport(){
+        if(mScanManager == null){
+            mScanManager = new ScanManager();
+        }
+        try {
+            mScanManager.openScanner();
+        }catch(Exception e){
+            // Nếu không hỗ trợ ném ra lỗi và trả về false.
+            return false;
+        }
+        return true;
+    }
+
     /**
      * ScanManager.enableSymbology
      *
