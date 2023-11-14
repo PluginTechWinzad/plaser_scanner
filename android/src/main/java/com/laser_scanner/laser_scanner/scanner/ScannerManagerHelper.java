@@ -420,10 +420,10 @@ public class ScannerManagerHelper {
     }
 
     public boolean isSupport(){
-        if(mScanManager == null){
-            mScanManager = new ScanManager();
-        }
         try {
+            if(mScanManager == null){
+                mScanManager = new ScanManager();
+            }
             mScanManager.openScanner();
         }catch(Exception e){
             // Nếu không hỗ trợ ném ra lỗi và trả về false.
