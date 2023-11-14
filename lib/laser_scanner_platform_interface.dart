@@ -32,6 +32,10 @@ abstract class LaserScannerPlatform extends PlatformInterface {
     throw UnimplementedError('platformVersion() has not been implemented.');
   }
 
+  Future<bool?> isSupport() {
+    throw UnimplementedError('Check support device');
+  }
+
   Future<void> openScanner({bool? captureImageShow = false}) {
     throw UnimplementedError('openScanner() has not been implemented.');
   }

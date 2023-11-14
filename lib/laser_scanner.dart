@@ -7,6 +7,15 @@ import 'package:laser_scanner/utils/enum_utils.dart';
 import 'laser_scanner_platform_interface.dart';
 
 class LaserScanner {
+  /// Check device support
+  ///
+  /// [true] if device has support larse scan.
+  /// [false] Device hasn't support larse scan.
+  Future<bool?> isSupport() async {
+    final isSupport = await LaserScannerPlatform.instance.isSupport();
+    return isSupport ?? false;
+  }
+
   /// Open the scanner.
   ///
   /// This method opens the laser scanner.

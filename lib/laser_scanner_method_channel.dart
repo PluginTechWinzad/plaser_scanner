@@ -15,6 +15,15 @@ class MethodChannelLaserScanner extends LaserScannerPlatform {
   @visibleForTesting
   final methodChannel = const MethodChannel('laser_scanner');
 
+  /// 
+  ///  Check device support 
+  /// 
+  @override
+  Future<bool?> isSupport() async {
+    final isSupport = await methodChannel.invokeMethod<bool>('isSupport');
+    return isSupport;
+  }
+
   /// Opens the barcode scanner for scanning.
   ///captureImageShowcaptureImageShow
   /// Returns a Future that completes when the scanner is opened.
